@@ -45,7 +45,7 @@ pipeline {
         }
 
         stage('Spin up Gcloud instance') {
-            when { anyOf { branch 'master' } }
+            when { anyOf { branch 'main' } }
             steps {
                 dir('./ansible') {
                     withCredentials([file(credentialsId: 'ansible-bbop-local-slave', variable: 'DEPLOY_LOCAL_IDENTITY')]) {
