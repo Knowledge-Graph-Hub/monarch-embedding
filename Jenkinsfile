@@ -48,7 +48,7 @@ pipeline {
             when { anyOf { branch 'main' } }
             steps {
                 dir('./ansible') {
-                    withCredentials([file(credentialsId: 'GCLOUD_CRED_JSON', variable: 'GCLOUD_CRED_JSON')]) {
+                    withCredentials([file(credentialsId: 'GCLOUD_CRED_JSON', variable: 'CLOUDSDK_ACTIVE_CONFIG_NAME')]) {
                         echo 'Trying to start up instance...'
                             // sh 'ansible-playbook update-kg-hub-endpoint.yaml --inventory=hosts.local-rdf-endpoint --private-key="$DEPLOY_LOCAL_IDENTITY" -e target_user=bbop --extra-vars="endpoint=internal"'
                             //
@@ -62,11 +62,8 @@ pipeline {
                                   echo "env:"
                                   env
 
-                                  echo "another variable: aws_kg_hub_push_json"
-                                  echo $aws_kg_hub_push_json
-
-                                  echo "Testing for environmental variable GCLOUD_CRED_JSON:"
-                                  echo $GCLOUD_CRED_JSON
+                                  echo "Testing for environmental variable CLOUDSDK_ACTIVE_CONFIG_NAME:"
+                                  echo $ CLOUDSDK_ACTIVE_CONFIG_NAME
 
                                   STATUS=$(gcloud compute instances describe $VM --zone=$ZONE --format="yaml(status)")
 
