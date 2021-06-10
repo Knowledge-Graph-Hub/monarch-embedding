@@ -72,6 +72,16 @@ pipeline {
                                        echo "no dice - sleeping for 30 s"
                                        sleep 30
                                   done
+
+                                  if [ "$STATUS" == "status: TERMINATED" ]
+                                  then
+                                        echo ERROR: Failed to start instance
+                                        exit 1
+                                  else
+                                        echo started instance
+                                  fi
+
+
                                   gcloud compute instances describe $GCLOUD_VM --zone=$GCLOUD_ZONE --format="yaml(status)"
                             '''
                     }
