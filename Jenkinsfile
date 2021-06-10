@@ -13,8 +13,8 @@ pipeline {
         // used solely for invalidations
         AWS_CLOUDFRONT_DISTRIBUTION_ID = 'EUVSWXZQBXCFP'
         GCLOUD_PROJECT = 'test-project-covid-19-277821'
-        VM=graph-embedding-2-vm
-        ZONE=us-central1-c
+        VM='graph-embedding-2-vm'
+        ZONE='us-central1-c'
     }
 
     options {
