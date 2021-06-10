@@ -58,10 +58,11 @@ pipeline {
                                   echo "In bash script..."
                                   VM=graph-embedding-2-vm
                                   ZONE=us-central1-c
-                                  STATUS=$(gcloud compute instances describe $VM --zone=$ZONE --format="yaml(status)")
 
                                   echo "Testing for environmental variable GCLOUD_CRED_JSON:"
                                   echo $GCLOUD_CRED_JSON
+
+                                  STATUS=$(gcloud compute instances describe $VM --zone=$ZONE --format="yaml(status)")
 
                                   n=0
                                   until [ "$n" -ge 10 ]
