@@ -80,10 +80,9 @@ pipeline {
             }
         }
 
-
-        stage('Stop Gcloud instance') {
-            when { anyOf { branch 'main' } }
-            steps {
+        post {
+            always {
+                echo 'Clean-up'
                 dir('./ansible') {
                     withCredentials([file(credentialsId: 'GCLOUD_CRED_JSON', variable: 'GCLOUD_CRED_JSON')]) {
                         echo 'Trying to stop instance...'
@@ -110,9 +109,19 @@ pipeline {
                             '''
                     }
                 }
-
+            }
+            success {
+                echo 'I succeeded!'
+            }
+            unstable {
+                echo 'I am unstable :/'
+            }
+            failure {
+                echo 'I failed :('
+            }
+            changed {
+                echo 'Things were different before...'
             }
         }
-
     }
 }
