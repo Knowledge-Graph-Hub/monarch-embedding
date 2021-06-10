@@ -59,6 +59,12 @@ pipeline {
                                   VM=graph-embedding-2-vm
                                   ZONE=us-central1-c
 
+                                  echo "env:"
+                                  env
+
+                                  echo "another variable: aws_kg_hub_push_json"
+                                  echo $aws_kg_hub_push_json
+
                                   echo "Testing for environmental variable GCLOUD_CRED_JSON:"
                                   echo $GCLOUD_CRED_JSON
 
