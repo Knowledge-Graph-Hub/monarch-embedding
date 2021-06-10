@@ -48,44 +48,42 @@ pipeline {
             when { anyOf { branch 'main' } }
             steps {
                 dir('./ansible') {
-                    withCredentials([file(credentialsId: 'ansible-bbop-local-slave', variable: 'DEPLOY_LOCAL_IDENTITY')]) {
+                    withCredentials([file(credentialsId: 'GCLOUD_CRED_JSON', variable: 'GCLOUD_CRED_JSON')]) {
                         echo 'Trying to start up instance...'
                             // sh 'ansible-playbook update-kg-hub-endpoint.yaml --inventory=hosts.local-rdf-endpoint --private-key="$DEPLOY_LOCAL_IDENTITY" -e target_user=bbop --extra-vars="endpoint=internal"'
                             //
                             // keep trying to start the instance until success
                             //
-                            withCredentials([file(credentialsId: 'GCLOUD_CRED_JSON', variable: 'GCLOUD_CRED_JSON')]) {
+                            sh '''#!/bin/bash
+                                  echo "In bash script..."
+                                  VM=graph-embedding-2-vm
+                                  ZONE=us-central1-c
 
-                                sh '''#!/bin/bash
-                                      echo "In bash script..."
-                                      VM=graph-embedding-2-vm
-                                      ZONE=us-central1-c
+                                  echo "env:"
+                                  env
 
-                                      echo "env:"
-                                      env
+                                  echo "another variable: aws_kg_hub_push_json"
+                                  echo $aws_kg_hub_push_json
 
-                                      echo "another variable: aws_kg_hub_push_json"
-                                      echo $aws_kg_hub_push_json
+                                  echo "Testing for environmental variable GCLOUD_CRED_JSON:"
+                                  echo $GCLOUD_CRED_JSON
 
-                                      echo "Testing for environmental variable GCLOUD_CRED_JSON:"
-                                      echo $GCLOUD_CRED_JSON
+                                  STATUS=$(gcloud compute instances describe $VM --zone=$ZONE --format="yaml(status)")
 
-                                      STATUS=$(gcloud compute instances describe $VM --zone=$ZONE --format="yaml(status)")
+                                  n=0
+                                  until [ "$n" -ge 10 ]
+                                  do
+                                       echo "instance $VM $STATUS; trying to start instance..."
+                                       gcloud compute instances start $VM --zone=$ZONE
+                                       STATUS=$(gcloud compute instances describe $VM --zone=$ZONE --format="yaml(status)")
 
-                                      n=0
-                                      until [ "$n" -ge 10 ]
-                                      do
-                                           echo "instance $VM $STATUS; trying to start instance..."
-                                           gcloud compute instances start $VM --zone=$ZONE
-                                           STATUS=$(gcloud compute instances describe $VM --zone=$ZONE --format="yaml(status)")
-
-                                           [ "$STATUS" != "status: TERMINATED" ] && break
-                                           n=$((n+1))
-                                           echo "no dice - sleeping for 30 s"
-                                           sleep 30
-                                      done
-                                      gcloud compute instances describe $VM --zone=$ZONE --format="yaml(status)"
-                                '''
+                                       [ "$STATUS" != "status: TERMINATED" ] && break
+                                       n=$((n+1))
+                                       echo "no dice - sleeping for 30 s"
+                                       sleep 30
+                                  done
+                                  gcloud compute instances describe $VM --zone=$ZONE --format="yaml(status)"
+                            '''
                     }
                 }
 
