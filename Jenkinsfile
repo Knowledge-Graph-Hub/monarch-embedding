@@ -12,6 +12,7 @@ pipeline {
         // Distribution ID for the AWS CloudFront for this bucket
         // used solely for invalidations
         AWS_CLOUDFRONT_DISTRIBUTION_ID = 'EUVSWXZQBXCFP'
+        GCLOUD_PROJECT = 'test-project-covid-19-277821'
     }
 
     options {
@@ -66,7 +67,7 @@ pipeline {
                                   echo "Testing for environmental variable GCLOUD_CRED_JSON:"
                                   echo $GCLOUD_CRED_JSON
 
-                                  gcloud auth activate-service-account --key-file=$GCLOUD_CRED_JSON
+                                  gcloud auth activate-service-account --key-file=$GCLOUD_CRED_JSON --project $GCLOUD_PROJECT
 
                                   STATUS=$(gcloud compute instances describe $VM --zone=$ZONE --format="yaml(status)")
 
