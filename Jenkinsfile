@@ -94,7 +94,7 @@ pipeline {
 
                               while true
                               do
-                                   echo "instance $GCLOUD_VM $STATUS; trying to start instance..."
+                                   echo "instance $GCLOUD_VM $STATUS; trying to stop instance..."
                                    gcloud compute instances stop $GCLOUD_VM --zone=$GCLOUD_ZONE
                                    STATUS=$(gcloud compute instances describe $GCLOUD_VM --zone=$GCLOUD_ZONE --format="yaml(status)")
 
