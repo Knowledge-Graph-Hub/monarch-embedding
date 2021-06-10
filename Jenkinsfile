@@ -18,12 +18,12 @@ pipeline {
         timestamps()
     }
     stages {
-        // Very first: pause for a minute to give a chance to
+        // Very first: pause for a short time to give a chance to
         // cancel and clean the workspace before use.
         stage('Ready and clean') {
             steps {
-                // Give us a minute to cancel if we want.
-                sleep time: 1, unit: 'MINUTES'
+                // Give us a moment to cancel if we want.
+                sleep time: 30, unit: 'SECONDS'
                 cleanWs()
             }
         }
@@ -60,6 +60,9 @@ pipeline {
                                   ZONE=us-central1-c
                                   STATUS=$(gcloud compute instances describe $VM --zone=$ZONE --format="yaml(status)")
 
+                                  echo "Testing for environmental variable GCLOUD_CRED_JSON:"
+                                  echo $GCLOUD_CRED_JSON
+
                                   n=0
                                   until [ "$n" -ge 10 ]
                                   do
@@ -69,6 +72,7 @@ pipeline {
 
                                        [ "$STATUS" != "status: TERMINATED" ] && break
                                        n=$((n+1))
+                                       echo "no dice - sleeping for 30 s"
                                        sleep 30
                                   done
                                   gcloud compute instances describe $VM --zone=$ZONE --format="yaml(status)"
