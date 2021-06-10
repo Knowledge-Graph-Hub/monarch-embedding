@@ -13,8 +13,8 @@ pipeline {
         // used solely for invalidations
         AWS_CLOUDFRONT_DISTRIBUTION_ID = 'EUVSWXZQBXCFP'
         GCLOUD_PROJECT = 'test-project-covid-19-277821'
-        VM='graph-embedding-2-vm'
-        ZONE='us-central1-c'
+        GCLOUD_VM='graph-embedding-2-vm'
+        GCLOUD_ZONE='us-central1-c'
     }
 
     options {
@@ -50,7 +50,7 @@ pipeline {
         stage('Spin up Gcloud instance') {
             when { anyOf { branch 'main' } }
             steps {
-                dir('./ansible') {
+                dir('./gcloud') {
                     withCredentials([file(credentialsId: 'GCLOUD_CRED_JSON', variable: 'GCLOUD_CRED_JSON')]) {
                         echo 'Trying to start up instance...'
                             // keep trying to start the instance until success
@@ -58,21 +58,21 @@ pipeline {
                             sh '''#!/bin/bash
                                   gcloud auth activate-service-account --key-file=$GCLOUD_CRED_JSON --project $GCLOUD_PROJECT
 
-                                  STATUS=$(gcloud compute instances describe $VM --zone=$ZONE --format="yaml(status)")
+                                  STATUS=$(gcloud compute instances describe $GCLOUD_VM --zone=$GCLOUD_ZONE --format="yaml(status)")
 
                                   n=0
                                   until [ "$n" -ge 10 ]
                                   do
-                                       echo "instance $VM $STATUS; trying to start instance..."
-                                       gcloud compute instances start $VM --zone=$ZONE
-                                       STATUS=$(gcloud compute instances describe $VM --zone=$ZONE --format="yaml(status)")
+                                       echo "instance $GCLOUD_VM $STATUS; trying to start instance..."
+                                       gcloud compute instances start $GCLOUD_VM --zone=$GCLOUD_ZONE
+                                       STATUS=$(gcloud compute instances describe $GCLOUD_VM --zone=$GCLOUD_ZONE --format="yaml(status)")
 
                                        [ "$STATUS" != "status: TERMINATED" ] && break
                                        n=$((n+1))
                                        echo "no dice - sleeping for 30 s"
                                        sleep 30
                                   done
-                                  gcloud compute instances describe $VM --zone=$ZONE --format="yaml(status)"
+                                  gcloud compute instances describe $GCLOUD_VM --zone=$GCLOUD_ZONE --format="yaml(status)"
                             '''
                     }
                 }
@@ -83,29 +83,26 @@ pipeline {
     post {
         always {
             echo 'Clean-up'
-            dir('./ansible') {
+            dir('./gcloud') {
                 withCredentials([file(credentialsId: 'GCLOUD_CRED_JSON', variable: 'GCLOUD_CRED_JSON')]) {
                     echo 'Trying to stop instance...'
-                        // keep trying to start the instance until success
-                        //
+                        // keep trying to stop the instance until success
                         sh '''#!/bin/bash
                               gcloud auth activate-service-account --key-file=$GCLOUD_CRED_JSON --project $GCLOUD_PROJECT
 
-                              STATUS=$(gcloud compute instances describe $VM --zone=$ZONE --format="yaml(status)")
+                              STATUS=$(gcloud compute instances describe $GCLOUD_VM --zone=$GCLOUD_ZONE --format="yaml(status)")
 
-                              n=0
-                              until [ "$n" -ge 10 ]
+                              while true
                               do
-                                   echo "instance $VM $STATUS; trying to start instance..."
-                                   gcloud compute instances stop $VM --zone=$ZONE
-                                   STATUS=$(gcloud compute instances describe $VM --zone=$ZONE --format="yaml(status)")
+                                   echo "instance $GCLOUD_VM $STATUS; trying to start instance..."
+                                   gcloud compute instances stop $GCLOUD_VM --zone=$GCLOUD_ZONE
+                                   STATUS=$(gcloud compute instances describe $GCLOUD_VM --zone=$GCLOUD_ZONE --format="yaml(status)")
 
                                    [ "$STATUS" == "status: TERMINATED" ] && break
-                                   n=$((n+1))
-                                   echo "no dice - sleeping for 30 s"
-                                   sleep 30
+                                   echo "no dice - sleeping for 10 s"
+                                   sleep 10
                               done
-                              gcloud compute instances describe $VM --zone=$ZONE --format="yaml(status)"
+                              gcloud compute instances describe $GCLOUD_VM --zone=$GCLOUD_ZONE --format="yaml(status)"
                         '''
                 }
             }
