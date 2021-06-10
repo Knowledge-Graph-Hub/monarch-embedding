@@ -48,6 +48,7 @@ pipeline {
             when { anyOf { branch 'main' } }
             steps {
                 dir('./ansible') {
+                    # CLOUDSDK_ACTIVE_CONFIG_NAME is automatically used by gcloud cli (I think)
                     withCredentials([file(credentialsId: 'GCLOUD_CRED_JSON', variable: 'CLOUDSDK_ACTIVE_CONFIG_NAME')]) {
                         echo 'Trying to start up instance...'
                             // sh 'ansible-playbook update-kg-hub-endpoint.yaml --inventory=hosts.local-rdf-endpoint --private-key="$DEPLOY_LOCAL_IDENTITY" -e target_user=bbop --extra-vars="endpoint=internal"'
@@ -63,23 +64,23 @@ pipeline {
                                   env
 
                                   echo "Testing for environmental variable CLOUDSDK_ACTIVE_CONFIG_NAME:"
-                                  echo $ CLOUDSDK_ACTIVE_CONFIG_NAME
+                                  echo $CLOUDSDK_ACTIVE_CONFIG_NAME
 
-                                  STATUS=$(gcloud compute instances describe $VM --zone=$ZONE --format="yaml(status)")
+                                  STATUS=$(gcloud --configuration=$CLOUDSDK_ACTIVE_CONFIG_NAME compute instances describe $VM --zone=$ZONE --format="yaml(status)")
 
                                   n=0
                                   until [ "$n" -ge 10 ]
                                   do
                                        echo "instance $VM $STATUS; trying to start instance..."
                                        gcloud compute instances start $VM --zone=$ZONE
-                                       STATUS=$(gcloud compute instances describe $VM --zone=$ZONE --format="yaml(status)")
+                                       STATUS=$(gcloud --configuration=$CLOUDSDK_ACTIVE_CONFIG_NAME compute instances describe $VM --zone=$ZONE --format="yaml(status)")
 
                                        [ "$STATUS" != "status: TERMINATED" ] && break
                                        n=$((n+1))
                                        echo "no dice - sleeping for 30 s"
                                        sleep 30
                                   done
-                                  gcloud compute instances describe $VM --zone=$ZONE --format="yaml(status)"
+                                  gcloud --configuration=$CLOUDSDK_ACTIVE_CONFIG_NAME compute instances describe $VM --zone=$ZONE --format="yaml(status)"
                             '''
                     }
                 }
