@@ -54,36 +54,38 @@ pipeline {
                             //
                             // keep trying to start the instance until success
                             //
-                            sh '''#!/bin/bash
-                                  echo "In bash script..."
-                                  VM=graph-embedding-2-vm
-                                  ZONE=us-central1-c
+                            withCredentials([file(credentialsId: 'GCLOUD_CRED_JSON', variable: 'GCLOUD_CRED_JSON')]) {
 
-                                  echo "env:"
-                                  env
+                                sh '''#!/bin/bash
+                                      echo "In bash script..."
+                                      VM=graph-embedding-2-vm
+                                      ZONE=us-central1-c
 
-                                  echo "another variable: aws_kg_hub_push_json"
-                                  echo $aws_kg_hub_push_json
+                                      echo "env:"
+                                      env
 
-                                  echo "Testing for environmental variable GCLOUD_CRED_JSON:"
-                                  echo $GCLOUD_CRED_JSON
+                                      echo "another variable: aws_kg_hub_push_json"
+                                      echo $aws_kg_hub_push_json
 
-                                  STATUS=$(gcloud compute instances describe $VM --zone=$ZONE --format="yaml(status)")
+                                      echo "Testing for environmental variable GCLOUD_CRED_JSON:"
+                                      echo $GCLOUD_CRED_JSON
 
-                                  n=0
-                                  until [ "$n" -ge 10 ]
-                                  do
-                                       echo "instance $VM $STATUS; trying to start instance..."
-                                       gcloud compute instances start $VM --zone=$ZONE
-                                       STATUS=$(gcloud compute instances describe $VM --zone=$ZONE --format="yaml(status)")
+                                      STATUS=$(gcloud compute instances describe $VM --zone=$ZONE --format="yaml(status)")
 
-                                       [ "$STATUS" != "status: TERMINATED" ] && break
-                                       n=$((n+1))
-                                       echo "no dice - sleeping for 30 s"
-                                       sleep 30
-                                  done
-                                  gcloud compute instances describe $VM --zone=$ZONE --format="yaml(status)"
-                            '''
+                                      n=0
+                                      until [ "$n" -ge 10 ]
+                                      do
+                                           echo "instance $VM $STATUS; trying to start instance..."
+                                           gcloud compute instances start $VM --zone=$ZONE
+                                           STATUS=$(gcloud compute instances describe $VM --zone=$ZONE --format="yaml(status)")
+
+                                           [ "$STATUS" != "status: TERMINATED" ] && break
+                                           n=$((n+1))
+                                           echo "no dice - sleeping for 30 s"
+                                           sleep 30
+                                      done
+                                      gcloud compute instances describe $VM --zone=$ZONE --format="yaml(status)"
+                                '''
                     }
                 }
 
