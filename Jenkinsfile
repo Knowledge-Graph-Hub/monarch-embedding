@@ -89,25 +89,26 @@ pipeline {
 
             }
         }
-    }
 
-    stage('Run pipeline to create embedding') {
-        steps {
-            dir('./run_embedding') {
-                script{
-                    sh 'env'
-                    def EXIT_CODE=sh script:'ssh $GCLOUD_VM "run_embedding.py &> error_file.txt"', returnStatus:true
-                    // sh script:script, returnStatus:true
-                    sh 'scp $GCLOUD_VM:error_file.txt .'
-                    sh 'cat error_file.txt'
+        stage('Run pipeline to create embedding') {
+            steps {
+                dir('./run_embedding') {
+                    script{
+                        sh 'env'
+                        def EXIT_CODE=sh script:'ssh $GCLOUD_VM "run_embedding.py &> error_file.txt"', returnStatus:true
+                        // sh script:script, returnStatus:true
+                        sh 'scp $GCLOUD_VM:error_file.txt .'
+                        sh 'cat error_file.txt'
 
-                    if(EXIT_CODE != 0){
-                       currentBuild.result = 'FAILED'
-                       return
+                        if(EXIT_CODE != 0){
+                           currentBuild.result = 'FAILED'
+                           return
+                        }
                     }
                 }
             }
         }
+
     }
 
     post {
