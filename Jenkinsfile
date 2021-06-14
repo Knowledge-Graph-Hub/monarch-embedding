@@ -51,14 +51,13 @@ pipeline {
             steps {
                 dir('./run_embedding') {
                     sh 'env'
-                        EXIT_CODE=sh 'ssh $GCLOUD_VM "run_embedding.py &> error_file.txt"'
-                        sh 'scp $GCLOUD_VM:error_file.txt .'
-                        sh 'cat error_file.txt'
+                    EXIT_CODE=sh 'ssh $GCLOUD_VM "run_embedding.py &> error_file.txt"'
+                    sh 'scp $GCLOUD_VM:error_file.txt .'
+                    sh 'cat error_file.txt'
 
-                        if(EXIT_CODE != 0){
-                           currentBuild.result = 'FAILED'
-                           return
-                        }
+                    if(EXIT_CODE != 0){
+                       currentBuild.result = 'FAILED'
+                       return
                     }
                 }
             }
