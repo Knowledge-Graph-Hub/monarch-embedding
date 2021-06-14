@@ -47,6 +47,23 @@ pipeline {
             }
         }
 
+        stage('Run pipeline to create embedding') {
+            steps {
+                dir('./run_embedding') {
+                    sh 'env'
+                        EXIT_CODE=sh 'ssh $GCLOUD_VM "run_embedding.py &> error_file.txt"'
+                        sh 'scp $GCLOUD_VM:error_file.txt .'
+                        sh 'cat error_file.txt'
+
+                        if(EXIT_CODE != 0){
+                           currentBuild.result = 'FAILED'
+                           return
+                        }
+                    }
+                }
+            }
+        }
+
         stage('Spin up Gcloud instance') {
             when { anyOf { branch 'main' } }
             steps {
