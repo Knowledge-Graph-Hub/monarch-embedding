@@ -61,7 +61,7 @@ pipeline {
                                   STATUS=$(gcloud compute instances describe $GCLOUD_VM --zone=$GCLOUD_ZONE --format="yaml(status)")
 
                                   n=0
-                                  until [ "$n" -ge 10 ]
+                                  until [ "$n" -ge 25 ]
                                   do
                                        echo "instance $GCLOUD_VM $STATUS; trying to start instance..."
                                        gcloud compute instances start $GCLOUD_VM --zone=$GCLOUD_ZONE
@@ -69,8 +69,8 @@ pipeline {
 
                                        [ "$STATUS" != "status: TERMINATED" ] && break
                                        n=$((n+1))
-                                       echo "no dice - sleeping for 30 s"
-                                       sleep 30
+                                       echo "no dice - sleeping for 15 s"
+                                       sleep 15
                                   done
 
                                   if [ "$STATUS" == "status: TERMINATED" ]
