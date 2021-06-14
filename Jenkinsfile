@@ -69,8 +69,8 @@ pipeline {
 
                                        [ "$STATUS" != "status: TERMINATED" ] && break
                                        n=$((n+1))
-                                       echo "no dice - sleeping for 15 s"
-                                       sleep 15
+                                       echo "no dice - sleeping for 30 s"
+                                       sleep 30
                                   done
 
                                   if [ "$STATUS" == "status: TERMINATED" ]
