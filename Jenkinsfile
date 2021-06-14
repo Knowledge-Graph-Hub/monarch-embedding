@@ -61,7 +61,7 @@ pipeline {
                                   STATUS=$(gcloud compute instances describe $GCLOUD_VM --zone=$GCLOUD_ZONE --format="yaml(status)")
 
                                   n=0
-                                  until [ "$n" -ge 25 ]
+                                  until [ "$n" -ge 100 ]
                                   do
                                        echo "instance $GCLOUD_VM $STATUS; trying to start instance..."
                                        gcloud compute instances start $GCLOUD_VM --zone=$GCLOUD_ZONE
