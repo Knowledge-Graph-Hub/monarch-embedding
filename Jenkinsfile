@@ -95,9 +95,9 @@ pipeline {
                 dir('./run_embedding') {
                     script{
                         sh 'env'
-                        def EXIT_CODE=sh script:'gcloud compute ssh $GCLOUD_VM --zone=$GCLOUD_ZONE "run_embedding.py &> error_file.txt"', returnStatus:true
+                        def EXIT_CODE=sh script:'gcloud compute ssh $GCLOUD_VM --zone $GCLOUD_ZONE "run_embedding.py &> error_file.txt"', returnStatus:true
                         // sh script:script, returnStatus:true
-                        sh 'gcloud compute --zone=$GCLOUD_ZONE scp $GCLOUD_VM:~/error_file.txt .'
+                        sh 'gcloud compute --zone $GCLOUD_ZONE scp $GCLOUD_VM:~/error_file.txt .'
                         sh 'cat error_file.txt'
 
                         if(EXIT_CODE != 0){
