@@ -94,8 +94,8 @@ pipeline {
                 dir('./run_embedding') {
                     script{
                         sh 'env'
-                        def EXIT_CODE=sh script:'gcloud compute ssh $GCLOUD_VM --zone $GCLOUD_ZONE --ssh-flag="-tt" --command="sudo runuser -l jtr4v -c \'python3 /home/jtr4v/monarch-embedding/run_embedding.py &> error_file.txt\'"', returnStatus:true
-                        sh 'gcloud compute scp --zone $GCLOUD_ZONE $GCLOUD_VM:~/error_file.txt .'
+                        def EXIT_CODE=sh script:'gcloud compute ssh $GCLOUD_VM --zone $GCLOUD_ZONE --ssh-flag="-tt" --command="sudo runuser -l jtr4v -c \'python3 /home/jtr4v/monarch-embedding/run_embedding.py &> /home/jenkins/error_file.txt\'"', returnStatus:true
+                        sh 'gcloud compute scp --zone $GCLOUD_ZONE $GCLOUD_VM:/home/jenkins/error_file.txt .'
                         sh 'cat error_file.txt'
 
                         if(EXIT_CODE != 0){
