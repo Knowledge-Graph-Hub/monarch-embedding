@@ -67,7 +67,7 @@ monarch = EnsmallenGraph.from_unsorted_csv(
     #default_node_type= "biolink:NamedThing",
     edge_list_is_correct=True,
     #node_list_is_correct=True,
-    edge_max_rows_number=20000,
+    #edge_max_rows_number=20000,
     name=graph_name)
 
 print("dropping all but top 10 connected components...", file=sys.stderr)
