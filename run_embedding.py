@@ -21,8 +21,8 @@ graph_name = "FilteredMonarch"
 
 local_emb_dir = "/".join(["node_embeddings", embedding_method, graph_name])
 
-def upload_dir_to_s3(local_directory: str, s3_bucket: str, s3_bucket_dir: str) -> None:
 
+def upload_dir_to_s3(local_directory: str, s3_bucket: str, s3_bucket_dir: str) -> None:
     client = boto3.client('s3')
     for root, dirs, files in os.walk(local_directory):
 
