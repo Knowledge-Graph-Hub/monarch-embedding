@@ -1,5 +1,9 @@
 import tensorflow as tf
 
+config = tf.compat.v1.ConfigProto()
+config.gpu_options.allow_growth=True
+sess = tf.compat.v1.Session(config=config)
+
 with tf.device('/cpu:0'):
     a_c = tf.constant([1.0, 2.0, 3.0, 4.0, 5.0, 6.0], shape=[2, 3], name='a-cpu')
     b_c = tf.constant([1.0, 2.0, 3.0, 4.0, 5.0, 6.0], shape=[3, 2], name='b-cpu')
