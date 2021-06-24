@@ -54,7 +54,7 @@ git clone https://github.com/Knowledge-Graph-Hub/monarch-embedding.git
 
 sudo python3 -m pip install awscli==1.18.105
 sudo python3 -m pip install botocore==1.17.28
-sudo pip3 install s3cmd
+sudo pip3 install s3cmd boto3
 
 echo "setting up aws credentials:"
 aws configure # enter access key and secret key
