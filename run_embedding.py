@@ -36,7 +36,7 @@ def upload_dir_to_s3(local_directory: str, s3_bucket: str, s3_bucket_dir: str) -
             print(f"Searching {s3_path} in {s3_bucket}")
             try:
                 client.head_object(Bucket=s3_bucket, Key=s3_path)
-                logging.warning("Path found on S3! Skipping {s3_path}")
+                logging.warning("Existing file {s3_path} found on S3! Skipping.")
             except ClientError:  # Exception abuse
                 logging.info(f"Uploading {s3_path}")
                 client.upload_file(local_path, s3_bucket, s3_path)
