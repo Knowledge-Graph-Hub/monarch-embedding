@@ -22,7 +22,7 @@ graph_name = "FilteredMonarch"
 local_emb_dir = "/".join(["node_embeddings", embedding_method, graph_name])
 
 
-def upload_dir_to_s3(local_directory: str, s3_bucket: str, s3_bucket_dir: str) -> None:
+def upload_dir_to_s3(local_directory: str, s3_bucket: str, s3_bucket_dir: str, make_public=False) -> None:
     client = boto3.client('s3')
     for root, dirs, files in os.walk(local_directory):
 
@@ -38,8 +38,12 @@ def upload_dir_to_s3(local_directory: str, s3_bucket: str, s3_bucket_dir: str) -
                 client.head_object(Bucket=s3_bucket, Key=s3_path)
                 logging.warning("Existing file {s3_path} found on S3! Skipping.")
             except ClientError:  # Exception abuse
+                ExtraArgs = None
+                if make_public:
+                    ExtraArgs = {'ACL': 'public-read'}
+
                 logging.info(f"Uploading {s3_path}")
-                client.upload_file(local_path, s3_bucket, s3_path)
+                client.upload_file(local_path, s3_bucket, s3_path, ExtraArgs=ExtraArgs)
 
 
 
@@ -93,4 +97,5 @@ embedding, history = compute_node_embedding(
 print("uploading files...", file=sys.stderr)
 upload_dir_to_s3(local_directory=local_emb_dir,
                  s3_bucket=s3_bucket,
-                 s3_bucket_dir="/".join([s3_bucket_dir, local_emb_dir]))
+                 s3_bucket_dir="/".join([s3_bucket_dir, local_emb_dir]),
+                 make_public=True)
