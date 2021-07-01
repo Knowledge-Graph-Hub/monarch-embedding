@@ -33,7 +33,7 @@ pip3 install silence_tensorflow
 # Install ensmallen and embiggen:
 git clone https://github.com/AnacletoLAB/ensmallen_graph.git
 cd ensmallen_graph
-git checkout transitivity
+git checkout develop
 cargo install maturin
 cd ./bindings/python; maturin develop --release
 
@@ -41,7 +41,7 @@ cd ./bindings/python; maturin develop --release
 cd
 git clone https://github.com/monarch-initiative/embiggen.git
 cd embiggen
-git checkout graph_convolutional_network
+git checkout develop
 pip install . -U --user
 
 # Install monarch-embedding
