@@ -6,7 +6,7 @@ import subprocess
 import silence_tensorflow.auto
 from downloaders import BaseDownloader
 from ensmallen_graph import EnsmallenGraph
-from embiggen.utils import compute_node_embedding
+from embiggen.pipelines import compute_node_embedding
 import logging
 import boto3
 from botocore.exceptions import ClientError
