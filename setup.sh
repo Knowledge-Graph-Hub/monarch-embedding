@@ -14,6 +14,8 @@
 # cribbed from here:
 #https://github.com/AnacletoLAB/ensmallen_graph/blob/transitivity/setup/setup.sh
 
+cd
+
 ###########################################################
 # Setup Rust nightly
 ###########################################################
@@ -31,6 +33,7 @@ source $HOME/.cargo/env
 pip3 install silence_tensorflow
 
 # Install ensmallen and embiggen:
+rm -fr ensmallen_graph
 git clone https://github.com/AnacletoLAB/ensmallen_graph.git
 cd ensmallen_graph
 git checkout develop
@@ -39,6 +42,7 @@ cd ./bindings/python; maturin develop --release
 
 # Then for embiggen:
 cd
+rm -fr embiggen
 git clone https://github.com/monarch-initiative/embiggen.git
 cd embiggen
 git checkout develop
