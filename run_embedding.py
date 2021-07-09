@@ -14,7 +14,7 @@ from botocore.exceptions import ClientError
 nodes_url = "https://archive.monarchinitiative.org/202012/kgx/sri-reference-kg_nodes.tsv.gz"
 edges_url = "https://archive.monarchinitiative.org/202012/kgx/sri-reference-kg_edges.tsv.gz"
 s3_bucket = "kg-hub-public-data"
-s3_bucket_dir = "monarch" # where in s3://kg-hub-public-data where we want to put this
+s3_bucket_dir = "monarch"  # where in s3://kg-hub-public-data where we want to put this
 
 embedding_method = "SkipGram"
 graph_name = "FilteredMonarch"
@@ -61,8 +61,8 @@ monarch = EnsmallenGraph.from_unsorted_csv(
     edge_path="downloads/sri-reference-kg_edges.tsv",
     directed=False,
     #node_path="downloads/sri-reference-kg_nodes.tsv",
-    sources_column= "subject",
-    destinations_column= "object",
+    sources_column="subject",
+    destinations_column="object",
     #edge_types_column= "relation",
     #nodes_column= "id",
     #node_types_column= "category",
