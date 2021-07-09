@@ -46,7 +46,6 @@ def upload_dir_to_s3(local_directory: str, s3_bucket: str, s3_bucket_dir: str, m
                 client.upload_file(local_path, s3_bucket, s3_path, ExtraArgs=ExtraArgs)
 
 
-
 print("running as:", subprocess.getoutput("whoami"))
 
 print("downloading graph...", file=sys.stderr)
