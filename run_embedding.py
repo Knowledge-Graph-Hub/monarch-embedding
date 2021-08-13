@@ -16,7 +16,7 @@ edges_url = "https://archive.monarchinitiative.org/202012/kgx/sri-reference-kg_e
 s3_bucket = "kg-hub-public-data"
 s3_bucket_dir = "monarch"  # where in s3://kg-hub-public-data where we want to put this
 
-embedding_method = "SkipGram"
+embedding_method = "TransE"
 graph_name = "FilteredMonarch"
 
 local_emb_dir = "/".join(["node_embeddings", embedding_method, graph_name])
