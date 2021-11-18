@@ -7,7 +7,7 @@ pipeline {
 
     environment {
         BUILDSTARTDATE = sh(script: "echo `date +%Y%m%d`", returnStdout: true).trim()
-        S3PROJECTDIR = 'monarch-embedding' // no trailing slash
+        S3PROJECTDIR = 'test' // no trailing slash
 
         // Distribution ID for the AWS CloudFront for this bucket
         // used solely for invalidations

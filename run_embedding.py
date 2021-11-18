@@ -5,20 +5,20 @@ import sys
 import subprocess
 import silence_tensorflow.auto
 from downloaders import BaseDownloader
-from ensmallen_graph import EnsmallenGraph
+from ensmallen import Graph
 from embiggen.pipelines import compute_node_embedding
 import logging
 import boto3
 from botocore.exceptions import ClientError
 
-nodes_url = "https://archive.monarchinitiative.org/202012/kgx/sri-reference-kg_nodes.tsv.gz"
-edges_url = "https://archive.monarchinitiative.org/202012/kgx/sri-reference-kg_edges.tsv.gz"
+nodes_url = "https://kg-hub.berkeleybop.io/test/bfo_kgx_tsv_nodes.tsv.gz"
+edges_url = "https://kg-hub.berkeleybop.io/test/bfo_kgx_tsv_edges.tsv.gz"
 s3_bucket = "kg-hub-public-data"
-s3_bucket_dir = "monarch"  # where in s3://kg-hub-public-data where we want to put this
-
+s3_bucket_dir = "test"  # where in s3://kg-hub-public-data where we want to put this
 embedding_method = "SkipGram"
-graph_name = "FilteredMonarch"
-
+graph_name = "BFO"
+edge_file_path = "downloads/bfo_kgx_tsv_edges.tsv"
+node_file_path = "downloads/bfo_kgx_tsv_nodes.tsv"
 local_emb_dir = "/".join(["node_embeddings", embedding_method, graph_name])
 
 
@@ -36,65 +36,95 @@ def upload_dir_to_s3(local_directory: str, s3_bucket: str, s3_bucket_dir: str, m
             print(f"Searching {s3_path} in {s3_bucket}")
             try:
                 client.head_object(Bucket=s3_bucket, Key=s3_path)
-                logging.warning("Existing file {s3_path} found on S3! Skipping.")
+                logging.warning(f"Existing file {s3_path} found on S3! Skipping.")
             except ClientError:  # Exception abuse
                 ExtraArgs = None
                 if make_public:
                     ExtraArgs = {'ACL': 'public-read'}
 
                 logging.info(f"Uploading {s3_path}")
+                print(f"Uploading {s3_path}")
                 client.upload_file(local_path, s3_bucket, s3_path, ExtraArgs=ExtraArgs)
+        
+        file_len = str(len(files))
+        print(f"Complete - uploaded {file_len} files.")
 
+def get_embedding(nodes_url: str, edges_url: str, s3_bucket: str,
+                   s3_bucket_dir: str, embedding_method: str,
+                   graph_name: str, edge_file_path: str,
+                   node_file_path: str, local_emb_dir: str) -> bool:
 
-print("running as:", subprocess.getoutput("whoami"))
+    success = False
 
-print("downloading graph...", file=sys.stderr)
+    print("running as:", subprocess.getoutput("whoami"))
 
-downloader = BaseDownloader()
-downloader.download([
-    nodes_url,
-    edges_url
-])
+    print("downloading graph...", file=sys.stderr)
 
-print("loading graph into EnsmallenGraph...", file=sys.stderr)
-monarch = EnsmallenGraph.from_unsorted_csv(
-    edge_path="downloads/sri-reference-kg_edges.tsv",
-    directed=False,
-    #node_path="downloads/sri-reference-kg_nodes.tsv",
-    sources_column="subject",
-    destinations_column="object",
-    #edge_types_column= "relation",
-    #nodes_column= "id",
-    #node_types_column= "category",
-    #node_types_separator= "|",
-    #default_node_type= "biolink:NamedThing",
-    edge_list_is_correct=True,
-    #node_list_is_correct=True,
-    #edge_max_rows_number=20000,
-    name=graph_name)
+    downloader = BaseDownloader()
+    downloader.download([
+        nodes_url,
+        edges_url
+    ])
 
-print("dropping all but top 10 connected components...", file=sys.stderr)
-filtered_monarch = monarch.remove_components(
-    top_k_components=10,
-    verbose=True
-)
+    print("loading graph into Ensmallen...", file=sys.stderr)
+    monarch = Graph.from_csv(
+        edge_path=edge_file_path,
+        directed=False,
+        #node_path=node_file_path,
+        sources_column="subject",
+        destinations_column="object",
+        #edge_types_column= "relation",
+        #nodes_column= "id",
+        #node_types_column= "category",
+        #node_types_separator= "|",
+        #default_node_type= "biolink:NamedThing",
+        edge_list_is_correct=True,
+        #node_list_is_correct=True,
+        #edge_max_rows_number=20000,
+        name=graph_name)
 
-print(filtered_monarch.hash())
+    print("dropping all but top 10 connected components...", file=sys.stderr)
+    filtered_monarch = monarch.remove_components(
+        top_k_components=10,
+        verbose=True
+    )
 
-print("running embedding...", file=sys.stderr)
-embedding, history = compute_node_embedding(
-    graph=monarch,
-    node_embedding_method_name=embedding_method,
-    verbose=2,
-    iterations=1,
-    embedding_size=20,
-    walk_length=128,
-    window_size=3,
-    batch_size=2048
-)
+    print(filtered_monarch.hash())
 
-print("uploading files...", file=sys.stderr)
-upload_dir_to_s3(local_directory=local_emb_dir,
-                 s3_bucket=s3_bucket,
-                 s3_bucket_dir="/".join([s3_bucket_dir, local_emb_dir]),
-                 make_public=True)
+    print("running embedding...", file=sys.stderr)
+    embedding, history = compute_node_embedding(
+        graph=monarch,
+        node_embedding_method_name=embedding_method,
+        verbose=2,
+        iterations=1,
+        embedding_size=20,
+        walk_length=128,
+        window_size=3,
+        batch_size=2048
+    )
+
+    print("uploading files...", file=sys.stderr)
+    try:
+        upload_dir_to_s3(local_directory=local_emb_dir,
+                    s3_bucket=s3_bucket,
+                    s3_bucket_dir="/".join([s3_bucket_dir, local_emb_dir]),
+                    make_public=True)
+        print("Uploads complete.")
+        success = True
+    except Exception as e:
+        print(e)
+
+    return success
+
+if get_embedding(nodes_url = nodes_url,
+                edges_url = edges_url,
+                s3_bucket = s3_bucket,
+                s3_bucket_dir = s3_bucket_dir,
+                embedding_method = embedding_method,
+                graph_name = graph_name,
+                edge_file_path = edge_file_path,
+                node_file_path = node_file_path,
+                local_emb_dir = local_emb_dir):
+    print("Success!")
+else:
+    print("Failure!")
